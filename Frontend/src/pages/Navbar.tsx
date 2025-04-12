@@ -13,24 +13,24 @@ const Navbar: React.FC = () => {
         </NavLink>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
-            <Button className="bg-[#ffffff] hover:bg-[#000000] hover:text-white">
+            <Button className="bg-[#ffffff] hover:bg-gray-500 hover:text-white">
               <NavLink to="/dashboard" className={({ isActive }) => isActive ? "underline text-primary" : ""}>
                 Dashboard
               </NavLink>
             </Button>
-            <Button className="bg-[#ffffff] hover:bg-[#000000] hover:text-white">
+            <Button className="bg-[#ffffff] hover:bg-gray-500 hover:text-white">
               <NavLink to="/history" className={({ isActive }) => isActive ? "underline text-primary" : ""}>
                 History
               </NavLink>
             </Button>
-            <Button className="bg-[#ffffff] hover:bg-[#000000] hover:text-white">
-              <NavLink to="/settings" className={({ isActive }) => isActive ? "underline text-primary" : ""}>
-                Settings
-              </NavLink>
-            </Button>
-            <Button className="bg-[#ffffff] hover:bg-[#000000] hover:text-white">
+            <Button className="bg-[#ffffff] hover:bg-gray-500 hover:text-white">
               <NavLink to="/scan" className={({ isActive }) => isActive ? "underline text-primary" : "" }>
                 New Scan
+              </NavLink>
+            </Button>
+            <Button className="bg-[#ffffff] hover:bg-gray-500 hover:text-white">
+              <NavLink to="/auth" className={({ isActive }) => isActive ? "underline text-primary" : ""}>
+                Login / SignUp
               </NavLink>
             </Button>
           </nav>
