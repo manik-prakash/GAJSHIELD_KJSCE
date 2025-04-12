@@ -45,24 +45,16 @@ const getGroqChatCompletion = async (userMessage) => {
 
 router.post("/chat", async (req, res) => {
   try {
-    const { label, family, type, confidence, filetype, filename } = req.body;
+    const { prompt, filename } = req.body;
 
-    if (!label || !family || !type || !confidence || !filetype || !filename) {
+    if (!prompt) {
       return res.status(400).json({
         success: false,
         error: "All fields are required.",
       });
     }
 
-    const userMessage = JSON.stringify({
-      label: label,
-      family: family,
-      type: type,
-      confidence: confidence,
-      filetype: filetype,
-    });
-
-    const completion = await getGroqChatCompletion(userMessage);
+    const completion = await getGroqChatCompletion(prompt);
     console.log("Completion from Groq API:", completion);
 
     let responseContent = completion.choices?.[0]?.message?.content;
@@ -75,7 +67,6 @@ router.post("/chat", async (req, res) => {
       });
     }
 
-    // Remove all ** from the response
     responseContent = responseContent.replace(/\*\*/g, '');
     console.log("Response from Groq API (after clean):", responseContent);
 
