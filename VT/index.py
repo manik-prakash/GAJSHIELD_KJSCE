@@ -4,7 +4,7 @@ import requests
 
 app = Flask(__name__)
 
-# HTML form for file upload
+# HTML templates
 UPLOAD_FORM = '''
 <!DOCTYPE html>
 <html>
@@ -21,17 +21,48 @@ UPLOAD_FORM = '''
 </html>
 '''
 
+RESULTS_TEMPLATE = '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scan Results</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Scan Results</h1>
+    {% if engine_results %}
+        <table>
+            <tr>
+                <th>Antivirus Engine</th>
+                <th>Detection Result</th>
+            </tr>
+            {% for result in engine_results %}
+            <tr>
+                <td>{{ result.engine_name }}</td>
+                <td>{{ result.result or 'No specific result' }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No malicious detections found.</p>
+    {% endif %}
+</body>
+</html>
+'''
+
 VIRUSTOTAL_API_KEY = "d324b5badbe3f3bcaac15e0d320f3fc16c631cdfc39442071d90d72df2838d71"
 
 @app.route('/', methods=['GET'])
 def home():
     return "Hello World!"
 
-
 @app.route('/report', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # Check if file was uploaded
         if 'file' not in request.files:
             return 'No file uploaded', 400
             
@@ -39,37 +70,54 @@ def index():
         if file.filename == '':
             return 'No selected file', 400
 
-        # Prepare VirusTotal API request
         headers = {
             "accept": "application/json",
             "x-apikey": VIRUSTOTAL_API_KEY
         }
 
-        # Upload file to VirusTotal
         try:
+            # Upload file
             response = requests.post(
                 "https://www.virustotal.com/api/v3/files",
                 files={"file": (file.filename, file.stream, file.content_type)},
                 headers=headers
             )
             response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            return f'API Error: {str(e)}', 500
+            analysis_id = response.json().get('data', {}).get('id')
+            if not analysis_id:
+                return 'Failed to get analysis ID', 500
 
-        # Get analysis ID
-        analysis_id = response.json().get('data', {}).get('id')
-        if not analysis_id:
-            return 'Failed to get analysis ID', 500
-
-        # Get analysis report
-        try:
+            # Get report
             report_url = f"https://www.virustotal.com/api/v3/analyses/{quote(analysis_id)}"
             report_response = requests.get(report_url, headers=headers)
             report_response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            return f'Report Error: {str(e)}', 500
+            report_response = report_response.json()
+            # Use the dictionary directly; no .json() needed
+            report_data = report_response
+            
+            # Extract engine results
+            results = report_data.get('data', {}).get('attributes', {}).get('results', {})
+            engine_results = []
+            
+            for engine in results.values():
+                
+                # Check if category is not 'undetected' AND result is not None
+                if engine.get('category') != 'undetected' and engine.get('result') is not None:
+                    engine_results.append({
+                        'engine_name': engine.get('engine_name', 'Unknown'),
+                        'result': engine.get('result')
+                    })
+                
+            # Return JSON response
+            
+            
+            for result in engine_results:
+                print(f"Engine: {result['engine_name']} - result: {result['result']}")
 
-        return report_response.json()
+            return {'engine_results': engine_results}, 200, {'Content-Type': 'application/json'}
+
+        except requests.exceptions.RequestException as e:
+            return f'Error: {str(e)}', 500
 
     return render_template_string(UPLOAD_FORM)
 
