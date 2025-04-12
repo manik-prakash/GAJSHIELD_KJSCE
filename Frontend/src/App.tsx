@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/dashboard";
 import History from "./pages/History";
 import Scan from "./pages/Scan";
 import Auth from "./pages/Auth";
@@ -34,5 +34,6 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  return <RouterProvider router={router} />;
+
+  return <RouterProvider router={router} /> ;
 }
