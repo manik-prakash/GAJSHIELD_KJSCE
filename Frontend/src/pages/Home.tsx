@@ -16,36 +16,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 export default function Home() {
   return (
       <div className="flex min-h-screen flex-col">
-        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
-            <div className="flex gap-2 items-center text-xl font-bold">
-              <Shield className="h-6 w-6 text-primary" />
-              <span>MalwareGuard AI</span>
-            </div>
-            <div className="flex flex-1 items-center justify-end space-x-4">
-              <nav className="flex items-center space-x-2">
-                <Button>
-                  <Link to="/dashboard">Dashboard</Link>
-                </Button>
-                <Button>
-                  <Link to="/history">History</Link>
-                </Button>
-                <Button>
-                  <Link to="/settings">Settings</Link>
-                </Button>
-                <Button>
-                  <Link to="/scan">New Scan</Link>
-                </Button>
-              </nav>
-            </div>
-          </div>
-        </header>
+        <Navbar/>
         <main className="flex-1">
-          <section className="w-full py-12 md:py-24 lg:py-32 custom-blue-gradient text-white">
+          <section className="w-full py-12 md:py-24 lg:py-32 text-black">
             <div className="container px-4 md:px-6">
               <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
                 <div className="flex flex-col justify-center space-y-4">
@@ -53,7 +32,7 @@ export default function Home() {
                     <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
                       AI-Powered Malware Detection
                     </h1>
-                    <p className="max-w-[600px] text-white/80 md:text-xl">
+                    <p className="max-w-[600px] text-black/80 md:text-xl">
                       Protect your systems with our advanced AI that detects
                       known and unknown threats in real-time.
                     </p>
@@ -69,7 +48,7 @@ export default function Home() {
                     <Button
                       size="lg"
                       variant="outline"
-                      className="border-white text-white hover:bg-white/10"
+                      className="border-black text-black hover:bg-black/10"
                     >
                       Learn More
                     </Button>
@@ -85,7 +64,7 @@ export default function Home() {
                     </CardHeader>
                     <CardContent>
                       <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-10 space-y-2 border-secondary/30">
-                        <Upload className="h-10 w-10 text-secondary" />
+                        <Upload className="h-10 w-10 text-primary" />
                         <p className="text-sm text-muted-foreground">
                           Drag and drop files here or click to browse
                         </p>
@@ -224,19 +203,19 @@ export default function Home() {
                     <TabsList className="grid w-full grid-cols-3 bg-primary/10">
                       <TabsTrigger
                         value="upload"
-                        className="data-[state=active]:bg-primary data-[state=active]:text-white"
+                        className="data-[state=active]:bg-primary data-[state=active]:text-black"
                       >
                         Upload
                       </TabsTrigger>
                       <TabsTrigger
                         value="analyze"
-                        className="data-[state=active]:bg-primary data-[state=active]:text-white"
+                        className="data-[state=active]:bg-primary data-[state=active]:text-black"
                       >
                         Analyze
                       </TabsTrigger>
                       <TabsTrigger
                         value="results"
-                        className="data-[state=active]:bg-primary data-[state=active]:text-white"
+                        className="data-[state=active]:bg-primary data-[state=active]:text-black"
                       >
                         Results
                       </TabsTrigger>
@@ -286,31 +265,7 @@ export default function Home() {
             </div>
           </section>
         </main>
-        <footer className="w-full border-t py-6 bg-primary text-white">
-          <div className="container flex flex-col items-center justify-between gap-4 md:flex-row">
-            <div className="flex gap-2 items-center text-lg font-semibold">
-              <Shield className="h-5 w-5 text-accent" />
-              <span>MalwareGuard AI</span>
-            </div>
-            <p className="text-center text-sm text-white/70">
-              © 2024 MalwareGuard AI. All rights reserved.
-            </p>
-            <div className="flex gap-4">
-              <Link
-                to="#"
-                className="text-sm text-white/70 underline underline-offset-4 hover:text-white"
-              >
-                Terms
-              </Link>
-              <Link
-                to="#"
-                className="text-sm text-white/70 underline underline-offset-4 hover:text-white"
-              >
-                Privacy
-              </Link>
-            </div>
-          </div>
-        </footer>
+        <Footer/>
       </div>
   );
 }

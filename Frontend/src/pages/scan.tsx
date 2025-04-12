@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {Link} from "react-router-dom"
+import Navbar from "./Navbar";
+
 
 export default function ScanPage() {
   const [files, setFiles] = useState<File[]>([])
@@ -121,30 +123,7 @@ export default function ScanPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
-          <Link to="/" className="flex gap-2 items-center text-xl font-bold">
-            <Shield className="h-6 w-6 text-primary" />
-            <span>MalwareGuard AI</span>
-          </Link>
-          <div className="flex flex-1 items-center justify-end space-x-4">
-            <nav className="flex items-center space-x-2">
-              <Button asChild variant="ghost">
-                <Link to="/dashboard">Dashboard</Link>
-              </Button>
-              <Button asChild variant="ghost">
-                <Link to="/history">History</Link>
-              </Button>
-              <Button asChild variant="ghost">
-                <Link to="/settings">Settings</Link>
-              </Button>
-              <Button asChild variant="default">
-                <Link to="/scan">New Scan</Link>
-              </Button>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Navbar />
       <main className="flex-1 container py-8">
         <div className="flex flex-col gap-8">
           <div>
