@@ -109,8 +109,6 @@ def index():
                     })
                 
             # Return JSON response
-            
-            
             for result in engine_results:
                 print(f"Engine: {result['engine_name']} - result: {result['result']}")
 
