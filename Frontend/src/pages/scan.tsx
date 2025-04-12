@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { Shield, Upload, FileText, AlertTriangle, CheckCircle, X, Info, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -8,15 +6,14 @@ import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import Link from "next/link"
+import {Link} from "react-router-dom"
 
 export default function ScanPage() {
-  const [files, setFiles] = useState([])
+  const [files, setFiles] = useState<File[]>([])
   const [scanning, setScanning] = useState(false)
   const [scanComplete, setScanComplete] = useState(false)
   const [progress, setProgress] = useState(0)
 
-  // Mock scan results for demonstration
   const scanResults = [
     {
       name: "document.docx",
@@ -50,20 +47,21 @@ export default function ScanPage() {
     },
   ]
 
-  const handleFileChange = (e) => {
-    if (e.target.files) {
-      setFiles(Array.from(e.target.files))
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      setFiles(Array.from(files));
     }
   }
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: { preventDefault: () => void; dataTransfer: { files: Iterable<File> | ArrayLike<File> } }) => {
     e.preventDefault()
     if (e.dataTransfer.files) {
       setFiles(Array.from(e.dataTransfer.files))
     }
   }
 
-  const handleDragOver = (e) => {
+  const handleDragOver = (e: { preventDefault: () => void }) => {
     e.preventDefault()
   }
 
@@ -95,7 +93,7 @@ export default function ScanPage() {
     setProgress(0)
   }
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "safe":
         return "bg-primary"
@@ -108,7 +106,7 @@ export default function ScanPage() {
     }
   }
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case "safe":
         return <Badge className="bg-primary hover:bg-primary/80">Safe</Badge>
@@ -125,23 +123,23 @@ export default function ScanPage() {
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
-          <Link href="/" className="flex gap-2 items-center text-xl font-bold">
+          <Link to="/" className="flex gap-2 items-center text-xl font-bold">
             <Shield className="h-6 w-6 text-primary" />
             <span>MalwareGuard AI</span>
           </Link>
           <div className="flex flex-1 items-center justify-end space-x-4">
             <nav className="flex items-center space-x-2">
               <Button asChild variant="ghost">
-                <Link href="/dashboard">Dashboard</Link>
+                <Link to="/dashboard">Dashboard</Link>
               </Button>
               <Button asChild variant="ghost">
-                <Link href="/history">History</Link>
+                <Link to="/history">History</Link>
               </Button>
               <Button asChild variant="ghost">
-                <Link href="/settings">Settings</Link>
+                <Link to="/settings">Settings</Link>
               </Button>
               <Button asChild variant="default">
-                <Link href="/scan">New Scan</Link>
+                <Link to="/scan">New Scan</Link>
               </Button>
             </nav>
           </div>
@@ -182,7 +180,7 @@ export default function ScanPage() {
                             Drag and drop a file here or click to browse
                           </p>
                           <input type="file" id="file-upload" className="hidden" onChange={handleFileChange} />
-                          <Button variant="secondary" onClick={() => document.getElementById("file-upload").click()}>
+                          <Button variant="secondary" onClick={() => document.getElementById("file-upload")?.click()}>
                             Select File
                           </Button>
                         </>
@@ -238,7 +236,7 @@ export default function ScanPage() {
                           {scanResults[1].status !== "safe" && (
                             <Alert
                               className="mt-4"
-                              variant={scanResults[1].status === "malware" ? "destructive" : "warning"}
+                              variant={scanResults[1].status === "malware" ? "destructive" : "default"}
                             >
                               <AlertTriangle className="h-4 w-4" />
                               <AlertTitle>Threat Detected</AlertTitle>
@@ -296,7 +294,7 @@ export default function ScanPage() {
                         Drag and drop multiple files here or click to browse
                       </p>
                       <input type="file" id="batch-upload" className="hidden" multiple onChange={handleFileChange} />
-                      <Button variant="secondary" onClick={() => document.getElementById("batch-upload").click()}>
+                      <Button variant="secondary" onClick={() => document.getElementById("batch-upload")?.click()}>
                         Select Files
                       </Button>
                     </div>
@@ -425,10 +423,10 @@ export default function ScanPage() {
           </div>
           <p className="text-center text-sm text-muted-foreground">© 2024 MalwareGuard AI. All rights reserved.</p>
           <div className="flex gap-4">
-            <Link href="#" className="text-sm text-muted-foreground underline underline-offset-4">
+            <Link to="#" className="text-sm text-muted-foreground underline underline-offset-4">
               Terms
             </Link>
-            <Link href="#" className="text-sm text-muted-foreground underline underline-offset-4">
+            <Link to="#" className="text-sm text-muted-foreground underline underline-offset-4">
               Privacy
             </Link>
           </div>

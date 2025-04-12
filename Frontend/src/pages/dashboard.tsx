@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
+import {Link} from "react-router-dom"
 import { Shield, BarChart2, PieChart, Calendar, Clock, ArrowUpRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,23 +15,23 @@ export default function DashboardPage() {
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
-          <Link href="/" className="flex gap-2 items-center text-xl font-bold">
+          <Link to="/" className="flex gap-2 items-center text-xl font-bold">
             <Shield className="h-6 w-6 text-primary" />
             <span>MalwareGuard AI</span>
           </Link>
           <div className="flex flex-1 items-center justify-end space-x-4">
             <nav className="flex items-center space-x-2">
               <Button asChild variant="ghost">
-                <Link href="/dashboard">Dashboard</Link>
+                <Link to="/dashboard">Dashboard</Link>
               </Button>
               <Button asChild variant="ghost">
-                <Link href="/history">History</Link>
+                <Link to="/history">History</Link>
               </Button>
               <Button asChild variant="ghost">
-                <Link href="/settings">Settings</Link>
+                <Link to="/settings">Settings</Link>
               </Button>
               <Button asChild>
-                <Link href="/scan">New Scan</Link>
+                <Link to="/scan">New Scan</Link>
               </Button>
             </nav>
           </div>
@@ -276,10 +276,10 @@ export default function DashboardPage() {
           </div>
           <p className="text-center text-sm text-muted-foreground">© 2024 MalwareGuard AI. All rights reserved.</p>
           <div className="flex gap-4">
-            <Link href="#" className="text-sm text-muted-foreground underline underline-offset-4">
+            <Link to="#" className="text-sm text-muted-foreground underline underline-offset-4">
               Terms
             </Link>
-            <Link href="#" className="text-sm text-muted-foreground underline underline-offset-4">
+            <Link to="#" className="text-sm text-muted-foreground underline underline-offset-4">
               Privacy
             </Link>
           </div>
