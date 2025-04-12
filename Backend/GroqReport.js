@@ -2,7 +2,7 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const PDFDocument = require("pdfkit");
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args)); // Fix for fetch
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const router = express.Router();
 
 const groqApiKey = "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";
@@ -64,8 +64,10 @@ router.post("/chat", async (req, res) => {
 
     const completion = await getGroqChatCompletion(userMessage);
     console.log("Completion from Groq API:", completion);
-    const responseContent = completion.choices?.[0]?.message?.content;
-    console.log("Response from Groq API:", responseContent);
+
+    let responseContent = completion.choices?.[0]?.message?.content;
+    console.log("Response from Groq API (before clean):", responseContent);
+
     if (!responseContent) {
       return res.status(500).json({
         success: false,
@@ -73,18 +75,50 @@ router.post("/chat", async (req, res) => {
       });
     }
 
+    // Remove all ** from the response
+    responseContent = responseContent.replace(/\*\*/g, '');
+    console.log("Response from Groq API (after clean):", responseContent);
+
     const username = req.cookies?.username || "Anonymous";
     const fileName = `${username}_${filename}-${Date.now()}.pdf`;
-    const pdfPath = path.join(__dirname, "../uploads", fileName);
 
-    if (!fs.existsSync(path.join(__dirname, "../uploads"))) {
-      fs.mkdirSync(path.join(__dirname, "../uploads"));
+    const uploadDir = path.join(__dirname, "../uploads");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir);
     }
 
-    const doc = new PDFDocument();
+    const pdfPath = path.join(uploadDir, fileName);
+    const doc = new PDFDocument({ margin: 50 });
     const writeStream = fs.createWriteStream(pdfPath);
+
     doc.pipe(writeStream);
-    doc.fontSize(12).text(responseContent, { align: "left" });
+
+    const sections = responseContent.split(/\n(?=[A-Z])/);
+
+    sections.forEach((section) => {
+      const lines = section.trim().split("\n");
+
+      if (lines.length > 0) {
+        doc.font("Helvetica-Bold").fontSize(16).text(lines[0], {
+          align: "left",
+          underline: false,
+        });
+        doc.moveDown(0.5);
+
+        if (lines.length > 1) {
+          doc.font("Helvetica").fontSize(12);
+          for (let i = 1; i < lines.length; i++) {
+            doc.text(lines[i], {
+              align: "left",
+              paragraphGap: 5,
+            });
+          }
+        }
+
+        doc.moveDown(1);
+      }
+    });
+
     doc.end();
 
     writeStream.on("finish", () => {
@@ -95,16 +129,18 @@ router.post("/chat", async (req, res) => {
     });
 
     writeStream.on("error", (err) => {
+      console.error("PDF Write Error:", err);
       res.status(500).json({
         success: false,
-        error: "Failed to generate PDF file.",
+        error: "Failed to generate PDF.",
       });
     });
 
   } catch (error) {
+    console.error("Server Error:", error);
     res.status(500).json({
       success: false,
-      error: error.message || "An unexpected error occurred",
+      error: "An error occurred.",
     });
   }
 });
