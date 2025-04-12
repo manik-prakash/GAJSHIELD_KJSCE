@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const port = 8080;
 const reportRouter = require("./GroqReport.js");
+const assistanceRouter = require("./GroqChat.js");
 
 
 app.use(express.json());
@@ -85,3 +86,4 @@ app.post("/logout", (req, res) => {
 });
 
 app.use("/report", reportRouter);
+app.use("/assistance", assistanceRouter);
