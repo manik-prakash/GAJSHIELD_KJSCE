@@ -16,8 +16,48 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import Faq from "./Faq";
+import { useState } from "react";
 
 export default function Home() {
+  const [files, setFiles] = useState<File[]>([]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      setFiles(Array.from(files));
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (files.length === 0) {
+      alert("Please select a file first.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", files[0]);
+  
+    try {
+      const response = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (response.ok) {
+        const result = await response.json();
+        console.log("File uploaded successfully:", result);
+        alert("File uploaded successfully!");
+      } else {
+        console.error("Upload failed:", response.statusText);
+        alert("File upload failed!");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Error uploading file!");
+    }
+  };
+  
+
   return (
       <div className="flex min-h-screen flex-col">
         <Navbar/>
@@ -66,9 +106,19 @@ export default function Home() {
                         <p className="text-sm text-muted-foreground">
                           Drag and drop files here or click to browse
                         </p>
-                        <Button variant="secondary" size="sm">
-                          Select Files
-                        </Button>
+                        <input type="file" id="file-upload" className="hidden" onChange={handleFileChange} />
+                        {files.length == 0 && <Button variant="secondary" onClick={() => document.getElementById("file-upload")?.click()}>
+                          Select File
+                        </Button>}
+                        {files.length > 0 && <p>{files[0].name}</p>}
+                        <div className="flex gap-2">
+                          <Button size="lg" variant="secondary" onClick={() => setFiles([])}>
+                            Remove
+                          </Button>
+                          <Button size="lg" onClick={handleSubmit} className="gap-2 bg-primary text-black hover:bg-primary/90">
+                            Submit
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                     <CardFooter>
@@ -263,6 +313,7 @@ export default function Home() {
             </div>
           </section>
         </main>
+        <Faq/>
         <Footer/>
       </div>
   );

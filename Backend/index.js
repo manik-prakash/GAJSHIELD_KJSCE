@@ -1,14 +1,20 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const { User } = require("./model.js");
+const { User } = require("./models/model.js");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken"); // Add JWT for token generation
-
+const jwt = require("jsonwebtoken"); 
+const cors = require("cors");
 const port = 8080;
+const reportRouter = require("./GroqReport.js");
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+}));
 async function main() {
     await mongoose.connect('mongodb+srv://manik:Tw0yDTt60qwOmGzO@cluster0.px6sa.mongodb.net/databaseName?retryWrites=true&w=majority') // Add database name
         .then(() => {
@@ -34,17 +40,17 @@ app.post("/login", async (req, res) => {
         if (!validPassword) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
-
-        // Generate JWT token
         const token = jwt.sign({ userId: user._id }, 'your_secret_key', { expiresIn: '1h' });
-        res.json({ message: 'Logged in successfully', token });
+        res.cookie('token', token, { httpOnly: true , sameSite: 'lax', secure: true });
+        res.cookie('username', username, { httpOnly: false , sameSite: 'lax', secure: true});
+        res.json({ message: 'Logged in successfully' });
     } catch (error) {
         console.error(error);
         res.status(500).send("Internal Server Error");
     }
 });
 
-app.post("/signup", async (req, res) => { // Changed endpoint to /signup for clarity
+app.post("/signup", async (req, res) => {
     const { username, email, password } = req.body;
 
     try {
@@ -71,3 +77,11 @@ app.post("/signup", async (req, res) => { // Changed endpoint to /signup for cla
         res.status(500).json({ message: "Internal Server Error" });
     }
 });
+
+app.post("/logout", (req, res) => { 
+    res.clearCookie('token');
+    res.clearCookie('username');
+    res.json({ message: 'Logged out successfully' });
+});
+
+app.use("/report", reportRouter);

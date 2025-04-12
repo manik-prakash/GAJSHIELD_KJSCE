@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {Link} from "react-router-dom"
 import Navbar from "./Navbar";
+import Footer from "./Footer"
+import Faq from "./Faq"
 
 
 export default function ScanPage() {
@@ -121,6 +123,34 @@ export default function ScanPage() {
     }
   }
 
+  const handleSubmit = async () => {
+    if (files.length === 0) {
+      alert("Please select a file first.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", files[0]);
+  
+    try {
+      const response = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (response.ok) {
+        const result = await response.json();
+        console.log("File uploaded successfully:", result);
+        alert("File uploaded successfully!");
+      } else {
+        console.error("Upload failed:", response.statusText);
+        alert("File upload failed!");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Error uploading file!");
+    }
+  };
+  
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
@@ -159,9 +189,18 @@ export default function ScanPage() {
                             Drag and drop a file here or click to browse
                           </p>
                           <input type="file" id="file-upload" className="hidden" onChange={handleFileChange} />
-                          <Button variant="secondary" onClick={() => document.getElementById("file-upload")?.click()}>
-                            Select File
+                        {files.length == 0 && <Button variant="secondary" onClick={() => document.getElementById("file-upload")?.click()}>
+                          Select File
+                        </Button>}
+                        {files.length > 0 && <p>File Uploaded</p>}
+                        <div className="flex gap-2">
+                          <Button size="lg" variant="secondary" onClick={() => setFiles([])}>
+                            Remove
                           </Button>
+                          <Button size="lg" onClick={handleSubmit} className="gap-2 bg-primary text-black hover:bg-primary/90">
+                            Submit
+                          </Button>
+                        </div>
                         </>
                       ) : (
                         <>
@@ -394,23 +433,8 @@ export default function ScanPage() {
           </Card>
         </div>
       </main>
-      <footer className="w-full border-t py-6">
-        <div className="container flex flex-col items-center justify-between gap-4 md:flex-row">
-          <div className="flex gap-2 items-center text-lg font-semibold">
-            <Shield className="h-5 w-5 text-primary" />
-            <span>MalwareGuard AI</span>
-          </div>
-          <p className="text-center text-sm text-muted-foreground">© 2024 MalwareGuard AI. All rights reserved.</p>
-          <div className="flex gap-4">
-            <Link to="#" className="text-sm text-muted-foreground underline underline-offset-4">
-              Terms
-            </Link>
-            <Link to="#" className="text-sm text-muted-foreground underline underline-offset-4">
-              Privacy
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <Faq/>
+      <Footer/>
     </div>
   )
 }

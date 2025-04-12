@@ -2,9 +2,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
-import Settings from "./pages/Settings";
 import Scan from "./pages/scan";
-import Auth from "./Auth";
+import Auth from "./pages/Auth";
 
 const router = createBrowserRouter([
   {
@@ -18,10 +17,6 @@ const router = createBrowserRouter([
   {
     path: "/history",
     element: <History />,
-  },
-  {
-    path: "/settings",
-    element: <Settings />,
   },
   {
     path: "/scan",

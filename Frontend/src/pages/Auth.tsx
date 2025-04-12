@@ -34,17 +34,12 @@ export default function Auth() {
     setError("");
 
     try {
-      const endpoint = isLogin ? "/login" : "/register";
+      const endpoint = isLogin ? "/login" : "/signup";
       const payload = isLogin
         ? { username: formData.username, password: formData.password }
         : { username: formData.username, email: formData.email, password: formData.password };
 
-      await axios.post(
-        `http://localhost:8080/api/users${endpoint}`,
-        payload,
-        { withCredentials: true }
-      );
-
+      await axios.post(`http://localhost:8080${endpoint}`, payload, { withCredentials: true });
       if (isLogin) {
         navigate("/");
       } else {
