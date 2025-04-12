@@ -21,7 +21,7 @@ UPLOAD_FORM = '''
 </html>
 '''
 
-VIRUSTOTAL_API_KEY = "b2bdbbf5bd14fc54270ade8d9bda24e145539d10a15e0ca1398551ae2d9d2bb6"
+VIRUSTOTAL_API_KEY = "d324b5badbe3f3bcaac15e0d320f3fc16c631cdfc39442071d90d72df2838d71"
 
 @app.route('/', methods=['GET'])
 def home():
