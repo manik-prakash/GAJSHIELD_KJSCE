@@ -48,7 +48,6 @@ app.post("/signup", async (req, res) => { // Changed endpoint to /signup for cla
     const { username, email, password } = req.body;
 
     try {
-        // Check for existing user by email or username
         const existingUser = await User.findOne({ username });
         if (existingUser) {
             return res.status(400).json({ message: "User already exists" });
