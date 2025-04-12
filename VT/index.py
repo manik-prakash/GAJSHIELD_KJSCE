@@ -23,7 +23,12 @@ UPLOAD_FORM = '''
 
 VIRUSTOTAL_API_KEY = "b2bdbbf5bd14fc54270ade8d9bda24e145539d10a15e0ca1398551ae2d9d2bb6"
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
+def home():
+    return "Hello World!"
+
+
+@app.route('/report', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         # Check if file was uploaded
