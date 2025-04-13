@@ -2,7 +2,7 @@ import os
 import json
 import pandas as pd
 
-jsonl_path = "./data/ember2018/train_features_1.jsonl"
+jsonl_path = "./data/ember2018/train_features_1.jsonl"          # This needs to be changed
 
 def load_jsonl_to_dataframe(jsonl_path):
     samples = []
