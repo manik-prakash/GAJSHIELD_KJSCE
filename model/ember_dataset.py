@@ -24,7 +24,6 @@ class Ember2DImageDataset(Dataset):
                         obj['general']['imports'],  # Number of imports
                         obj['general']['exports'],  # Number of exports
                         obj['strings']['entropy'],  # File entropy
-                        # obj['avclass']  # AVClass label (if available)
                     ]
                     # print(f"histogram: {type(histogram)}, byteentropy: {type(byteentropy)}")
                     self.samples.append({
