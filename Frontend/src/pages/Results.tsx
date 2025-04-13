@@ -1,104 +1,171 @@
-import { useLocation } from 'react-router-dom';
-import { useState } from 'react';
-import axios from 'axios';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useLocation } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { jsPDF } from "jspdf";
+import Navbar from "./Navbar";
 
-interface EngineResult {
-  engine_name: string;
-  result: string;
-}
-
-interface LocationState {
-  engine_results: EngineResult[];
-}
-
-function ResultsPage() {
+export default function ResultPage() {
   const location = useLocation();
-  const state = location.state as LocationState || { engine_results: [] };
-  const { engine_results } = state;
+  const result = location.state?.result;
+  const rawResponse = result?.response || "No response available";
 
-  const [loading, setLoading] = useState(false);
-  const [pdfLink, setPdfLink] = useState<string | null>(null);
-  const [error, setError] = useState<string>('');
+  const formatResponseForWeb = (text: string) => {
+    const lines = text.split("\n").filter((line) => line.trim() !== "");
+    return lines.map((line, index) => {
+      if (line.startsWith("### ")) {
+        return (
+          <h3 key={index} className="text-xl font-bold mt-6 mb-3">
+            {line.replace(/^###\s+/, "")}
+          </h3>
+        );
+      } else if (line.startsWith("## ")) {
+        return (
+          <h2
+            key={index}
+            className="text-2xl font-bold mt-8 mb-4 border-b pb-2"
+          >
+            {line.replace(/^##\s+/, "")}
+          </h2>
+        );
+      } else if (line.startsWith("# ")) {
+        return (
+          <h1
+            key={index}
+            className="text-3xl font-bold mt-10 mb-6 border-b pb-2"
+          >
+            {line.replace(/^#\s+/, "")}
+          </h1>
+        );
+      } else {
+        // Process bold and other markdown
+        const parts = line.split(/(\*\*.*?\*\*)/g);
+        return (
+          <p key={index} className="mb-4">
+            {parts.map((part, i) => {
+              if (part.startsWith("**") && part.endsWith("**")) {
+                return (
+                  <strong key={i} className="font-semibold">
+                    {part.slice(2, -2)}
+                  </strong>
+                );
+              }
+              return part;
+            })}
+          </p>
+        );
+      }
+    });
+  };
 
-  const handleGeneratePDF = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      setPdfLink(null);
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    let yPosition = 20;
+    const lineHeight = 7;
+    const pageHeight = doc.internal.pageSize.height - 20;
+    const margin = 15;
+    const maxWidth = doc.internal.pageSize.width - 2 * margin;
 
-      const response = await axios.post(
-        'http://localhost:5000/generate-pdf',
-        { engine_results },
-        { responseType: 'blob' }
-      );
+    // Add title
+    doc.setFontSize(18);
+    doc.text("Malware Detection Report", margin, yPosition);
+    yPosition += 20;
 
-      const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
-      const pdfUrl = URL.createObjectURL(pdfBlob);
+    doc.setFontSize(12);
+    const lines = rawResponse
+      .split("\n")
+      .filter((line: string) => line.trim() !== "");
 
-      setPdfLink(pdfUrl);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to generate PDF.');
-    } finally {
-      setLoading(false);
-    }
+    lines.forEach((line: string) => {
+      if (yPosition > pageHeight) {
+        doc.addPage();
+        yPosition = 20;
+      }
+
+      if (line.startsWith("### ")) {
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text(line.replace(/^###\s+/, ""), margin, yPosition);
+        doc.setFont("helvetica", "normal");
+        yPosition += lineHeight + 2;
+      } else if (line.startsWith("## ")) {
+        doc.setFontSize(16);
+        doc.setFont("", "bold");
+        doc.text(line.replace(/^##\s+/, ""), margin, yPosition);
+        doc.setFont("", "normal");
+        yPosition += lineHeight + 4;
+      } else if (line.startsWith("# ")) {
+        doc.setFontSize(18);
+        doc.setFont("", "bold");
+        doc.text(line.replace(/^#\s+/, ""), margin, yPosition);
+        doc.setFont("", "normal");
+        yPosition += lineHeight + 6;
+      } else {
+        // Process bold text
+        const parts = line.split(/(\*\*.*?\*\*)/g);
+        let xPosition = margin;
+
+        parts.forEach((part: string) => {
+          if (part.startsWith("**") && part.endsWith("**")) {
+            doc.setFont("", "bold");
+            const boldText = part.slice(2, -2);
+            const textWidth = doc.getTextWidth(boldText);
+
+            if (xPosition + textWidth > maxWidth) {
+              yPosition += lineHeight;
+              xPosition = margin;
+            }
+
+            doc.text(boldText, xPosition, yPosition);
+            xPosition += textWidth;
+            doc.setFont("", "normal");
+          } else if (part.trim() !== "") {
+            const regularText = part;
+            const textLines = doc.splitTextToSize(
+              regularText,
+              maxWidth - (xPosition - margin)
+            );
+
+            textLines.forEach((textLine: string, i: number) => {
+              if (i > 0) {
+                yPosition += lineHeight;
+                xPosition = margin;
+              }
+              doc.text(textLine, xPosition, yPosition);
+              xPosition += doc.getTextWidth(textLine);
+            });
+          }
+        });
+
+        yPosition += lineHeight;
+      }
+    });
+
+    doc.save("Malware_Detection_Report.pdf");
   };
 
   return (
-    <div className="p-8 flex flex-col items-center justify-center">
-      <Card className="w-full max-w-4xl shadow-md">
-        <CardHeader>
-          <CardTitle className="text-center text-2xl font-bold">Scan Results</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {engine_results.length === 0 ? (
-            <p className="text-center text-gray-500">No results found.</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Engine Name</TableHead>
-                  <TableHead>Result</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {engine_results.map((engine, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{engine.engine_name}</TableCell>
-                    <TableCell>{engine.result}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-          <div className="flex justify-center mt-6">
-            <Button onClick={handleGeneratePDF} disabled={loading}>
-              {loading ? 'Generating PDF...' : 'Generate PDF'}
-            </Button>
-          </div>
-
-          {pdfLink && (
-            <div className="flex justify-center mt-4">
-              <a href={pdfLink} download="scan_results.pdf" className="text-green-600 underline">
-                Download PDF
-              </a>
+    <>
+      <Navbar />
+      <div className="flex flex-col items-center max-h-screen bg-white p-4 pt-4">
+        <Card className="w-full max-w-4xl shadow-lg mb-8">
+          <CardContent className="p-6 space-y-6">
+            <h2 className="text-3xl font-bold text-center mb-6">
+              Malware Detection Report
+            </h2>
+            <div className="bg-gray-50 p-6 rounded-lg overflow-y-auto max-h-[50vh] w-full text-gray-800">
+              {formatResponseForWeb(rawResponse)}
             </div>
-          )}
-
-          {error && (
-            <Alert variant="destructive" className="mt-4">
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+            <div className="flex justify-center mt-4">
+              <Button
+                onClick={handleDownloadPDF}
+                className="bg-black text-white hover:bg-gray-800 px-6 py-3" /* Added padding */
+              >
+                Download PDF
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }
-
-export default ResultsPage;
