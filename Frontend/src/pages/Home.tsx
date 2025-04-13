@@ -54,23 +54,14 @@ export default function Home() {
             "http://127.0.0.1:8080/report/chat",
             {
               prompt: result,
-              filename: files[0].name,
               method: "POST",
               body: formData,
             }
           );
           if (response1.status >= 200 && response1.status < 300) {
             const result = response1.data;
-            console.log("Finally HERE:", result);
-            console.log("File path:", result.filePath);
-            if (result.filePath) {
-              const downloadLink = document.createElement("a");
-              downloadLink.href = result.filePath;
-              downloadLink.download = result.filePath.split("/").pop();
-              document.body.appendChild(downloadLink);
-              downloadLink.click();
-              document.body.removeChild(downloadLink);
-            }
+            navigate("/result", { state: { result } });
+            console.log("Result:", result);
           } else {
             console.error("Upload failed:", response1.statusText);
             alert("File upload failed!");

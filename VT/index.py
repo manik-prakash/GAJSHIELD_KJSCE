@@ -58,7 +58,7 @@ RESULTS_TEMPLATE = '''
 </html>
 '''
 
-VIRUSTOTAL_API_KEY = "d324b5badbe3f3bcaac15e0d320f3fc16c631cdfc39442071d90d72df2838d71"
+VIRUSTOTAL_API_KEY = "337446e06e512d913af44f157def454a9c6c76a8792f0c4c05b2283c49c6a8c7"
 
 @app.route('/', methods=['GET'])
 def home():
