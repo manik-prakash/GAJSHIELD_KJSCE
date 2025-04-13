@@ -2,7 +2,7 @@ import os
 import json
 import pandas as pd
 
-jsonl_path = "./data/ember2018/train_features_1.jsonl"          # This needs to be changed
+
 
 def load_jsonl_to_dataframe(jsonl_path):
     samples = []
@@ -41,24 +41,20 @@ def load_jsonl_to_dataframe(jsonl_path):
 
     return df
 
-
 def save_dataframe_to_csv(df, csv_path):
     # Save the DataFrame to a CSV file
     df.to_csv(csv_path, index=False)
 
-# Save the DataFrame to a CSV file
-# output_csv_path = './data/train_features_1.csv'
-# df.to_csv(output_csv_path, index=False)
+for i in range(6):
+    jsonl_path = f"./data/ember2018/train_features_{i}.jsonl"          # This needs to be changed
+    csv_path = f"data/output_data_{i}.csv"
 
-csv_path = "output_data.csv"
+    df = load_jsonl_to_dataframe(jsonl_path)
+    save_dataframe_to_csv(df, csv_path)
+    print(f"CSV file {i} saved to {csv_path}")
 
 # Load data into a DataFrame
-df = load_jsonl_to_dataframe(jsonl_path)
-
-
-print(df.head())   
 
 # Save the DataFrame to a CSV file
-save_dataframe_to_csv(df, csv_path)
 
-print(f"CSV file saved to {csv_path}")
+
