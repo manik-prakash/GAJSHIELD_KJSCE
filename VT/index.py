@@ -1,9 +1,13 @@
 from flask import Flask, request, render_template_string
 from urllib.parse import quote
 import requests
+from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app, resources={r"/*": {"origins": [
+    "http://localhost:5173",
+    "https://gajshield-flask-host.vercel.app"
+]}})
 # HTML templates
 UPLOAD_FORM = '''
 <!DOCTYPE html>
