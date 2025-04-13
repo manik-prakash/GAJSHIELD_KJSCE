@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
+from torchvision import transforms, datasets
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
@@ -49,17 +49,23 @@ class FeatureExtractorCNN(nn.Module):
     def __init__(self):
         super(FeatureExtractorCNN, self).__init__()
         self.conv_layers = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),  # Input: 1 channel (grayscale)
+            nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1),  # Input: 1 channel (grayscale)
+            nn.BatchNorm2d(32),
             nn.GELU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(64),
             nn.GELU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(128),
+            nn.GELU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1),
             nn.LeakyReLU(),
             nn.AdaptiveAvgPool2d((1, 1))  # Global average pooling
         )
-        self.fc = nn.Linear(128, 128)  # Output 256-dim feature vector
+        self.fc = nn.Linear(256, 256)  # Output 256-dim feature vector
 
     def forward(self, x):
         x = self.conv_layers(x)
@@ -83,8 +89,8 @@ def train_cnn_model(dataset, batch_size=32, epochs=10, device="cuda"):
     # Initialize model, loss function, optimizer, and scheduler
     model = FeatureExtractorCNN().to(device)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.0001)
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.1)
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
 
     # Training loop
     for epoch in range(epochs):
@@ -96,7 +102,7 @@ def train_cnn_model(dataset, batch_size=32, epochs=10, device="cuda"):
         for imgs, labels in train_loader:
             imgs, labels = imgs.to(device), labels.to(device)
 
-            # Forward pass
+            # Forward passasdasda
             outputs = model(imgs)
             loss = criterion(outputs, labels)
 
@@ -130,7 +136,7 @@ def train_cnn_model(dataset, batch_size=32, epochs=10, device="cuda"):
         print(f"Validation Accuracy: {val_acc:.4f}")
 
         # Step the learning rate scheduler
-        # scheduler.step()
+        scheduler.step()
 
     torch.save(model.state_dict(), "bin_cnn_model.pth")  # Save the trained model
     return model
@@ -183,7 +189,7 @@ if __name__ == "__main__":
     ])
 
     # Load dataset
-    dataset = MalwareDataset(image_dir, transform=transform)
+    dataset = datasets.ImageFolder(root=image_dir, transform=transform)
 
     # Train CNN model
     device = "cuda" if torch.cuda.is_available() else "cpu"
