@@ -9,80 +9,55 @@ const router = express.Router();
 const groqApiKey = "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";
 
 const getGroqChatCompletion = async (userMessage) => {
-  const fixedPrompt = `As a Cybersecurity Analyst, generate a formal Malware Detection Report based on the provided JSON input. Follow these guidelines:
-  1. If no input data is provided or the input is empty:
-    - Return a structured response titled "Insufficient Data Report"
-    - Clearly state: "No analysis could be performed due to missing input data"
-    - Provide standard guidance: "Please submit file samples or scan results for analysis"
-  2. For valid input data containing antivirus scan results:
-    Generate a comprehensive report with this structure:
-    ## Malware Detection Report: [File Name/Hash if available] - Multi-Engine Analysis
-    ### Executive Summary
-    - 3-4 line overview including:
-      * Number of engines detecting malware
-      * File type (if available)
-      * Overall confidence assessment
-      * Brief conclusion
+  const fixedPrompt = `${userMessage}
+  Based on the provided input containing antivirus engine results, please generate a formal Malware Detection Report with the following structure:
+  **1. Title:**  
+  - "Malware Detection Report"
+  **2. Executive Summary:**  
+  - 3-4 lines summarizing the analysis
+  - Include the number of engines detecting the file as malicious
+  - Mention the file type (if available)
+  - Provide an overall confidence assessment
+  - List the names of detecting engines if possible
 
-    ### Detection Details
-    - **Label**: "Malicious" or "Clean" (determined by engine consensus)
-    - **Family**: [Most reported malware family if multiple engines agree]
-    - **Type**: [General classification from engine results]
-    - **Confidence**: [X%] (Low/Moderate/High based on detection percentage:
-      * Low: <25%
-      * Moderate: 25-75%
-      * High: >75%
-    - **File Identification**:
-      * Name/Hash: [value if available]
-      * Type: [value if available or inferred]
-    - **Engine Detections**:
-      * [Tabular format preferred]
-      * Include all engines with their specific results
+  **3. Detection Details:**  
+  - **Label:** "Malicious" if any engine flags it; otherwise, "Clean"
+  - **Detection Count:** Number of engines detecting as malicious
+  - **Family:** Most frequently reported malware family (if available)
+  - **Type:** General malware type (e.g., 'Test File', 'Potentially Malicious')
+  - **Confidence:** Calculate percentage and rate as:
+    - Low: < 25%
+    - Moderate: 25% to 75%
+    - High: > 75%
+  - **File Name/Hash:** Value, if available
+  - **File Type:** Value if available; otherwise infer if possible
+  - **Engine Detections:**
+    - [Engine Name 1]: [Result String]
+    - [Engine Name 2]: [Result String]
+    - (List all engines)
 
-    ### Technical Analysis
-    - Describe common patterns in engine detections
-    - Highlight any notable signatures or behaviors reported
-    - Note any inconsistencies between engines
+  **4. Technical Analysis:**
+  - Summarize common behaviors or descriptions reported by the engines
+  - Focus on detected traits, file type characteristics, and typical file uses
+  - Avoid deep malware analysis
 
-    ### Risk Assessment
-    - **Severity**: [Low/Medium/High/Informational]
-      * Base on both detection rate and malware type
-    - **Potential Impact**: [Concise description of possible effects]
+  **5. Risk Assessment:**
+  - **Severity:** Rate as "Low/Medium/High/Informational" based on consensus and malware type
+    - EICAR test files = Low/Informational
+    - Multiple Trojans = High
+  - **Potential Impact:** Describe potential impact based on detection type
+    - Example: EICAR = "No real impact, used for testing"
+    - Example: Real malware = "Data theft, system compromise," etc.
 
-    ### Recommendations
-    Provide action items based on risk level:
-    - **High Risk**: Immediate isolation, full system scan, investigation
-    - **Medium Risk**: Quarantine, system scan, monitoring
-    - **Low/Informational**: Basic vigilance, no urgent action
+  **6. Recommendations:**
+  - **High Severity:**
+    "Isolate the file immediately. Conduct a full system scan. Investigate the source. Implement firewall/IDS rules to prevent further compromise."
+  - **Medium Severity:**
+    "Quarantine the file. Perform a full system scan. Monitor system behavior closely. Investigate potential entry points."
+  - **Low/Informational Severity:**
+    "No immediate action is necessary. File is likely safe. Maintain safe computing practices. Continue monitoring for unusual activity."
 
-  3. Formatting Requirements:
-    - Use Markdown with proper headings and sections
-    - Include horizontal rules between major sections
-    - Use bullet points for lists and bold for key terms
-    - Maintain consistent spacing and indentation
-
-  4. Tone and Style:
-    - Professional and objective
-    - Technical but accessible
-    - Avoid speculation beyond the data
-    - Use clear, actionable language
-
-  Example empty input response:
-  ## Insufficient Data Report
-
-  **No analysis could be performed**  
-  No input data was provided for analysis. 
-
-  **Recommended Action**:  
-  Please submit either:
-  - The suspicious file sample, or
-  - Complete antivirus scan results
-
-  For comprehensive analysis, include:
-  - File hashes (MD5, SHA1, SHA256)
-  - Multiple engine scan results
-  - Any available behavioral analysis
-  `;
+  If the file is completely clean (no detections), clearly state "Safe. No need to worry. The file is free from malware." in the executive summary.`;
 
   const finalPrompt = `${fixedPrompt}\n\nHere is the input:\n${userMessage}`;
 
@@ -95,7 +70,7 @@ const getGroqChatCompletion = async (userMessage) => {
         Authorization: `Bearer ${groqApiKey}`,
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "meta-llama/llama-4-scout-17b-16e-instruct",
         messages: [{ role: "user", content: finalPrompt }],
         max_tokens: 1000,
       }),

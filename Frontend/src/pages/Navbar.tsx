@@ -40,19 +40,6 @@ const Navbar: React.FC = () => {
               Dashboard
             </NavLink>
             <NavLink
-              to="/history"
-              className={({ isActive }) =>
-                `px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-white text-black"
-                    : "text-white hover:bg-gray-800"
-                }`
-              }
-            >
-              History
-            </NavLink>
-
-            <NavLink
               to="/scan"
               className={({ isActive }) =>
                 `px-4 py-2 rounded-md text-sm font-medium transition-colors ${

@@ -6,7 +6,6 @@ import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import {Link} from "react-router-dom"
 import Navbar from "./Navbar";
 import Footer from "./Footer"
 import Faq from "./Faq"
