@@ -50,16 +50,16 @@ class FeatureExtractorCNN(nn.Module):
         super(FeatureExtractorCNN, self).__init__()
         self.conv_layers = nn.Sequential(
             nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),  # Input: 1 channel (grayscale)
-            nn.ReLU(),
+            nn.GELU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(),
+            nn.GELU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.AdaptiveAvgPool2d((1, 1))  # Global average pooling
         )
-        self.fc = nn.Linear(128, 128)  # Output 128-dim feature vector
+        self.fc = nn.Linear(128, 128)  # Output 256-dim feature vector
 
     def forward(self, x):
         x = self.conv_layers(x)
@@ -83,8 +83,8 @@ def train_cnn_model(dataset, batch_size=32, epochs=10, device="cuda"):
     # Initialize model, loss function, optimizer, and scheduler
     model = FeatureExtractorCNN().to(device)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)
+    optimizer = optim.Adam(model.parameters(), lr=0.0001)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.1)
 
     # Training loop
     for epoch in range(epochs):
@@ -130,8 +130,9 @@ def train_cnn_model(dataset, batch_size=32, epochs=10, device="cuda"):
         print(f"Validation Accuracy: {val_acc:.4f}")
 
         # Step the learning rate scheduler
-        scheduler.step()
+        # scheduler.step()
 
+    torch.save(model.state_dict(), "bin_cnn_model.pth")  # Save the trained model
     return model
 
 # Step 4: Extract Features Using Trained CNN
@@ -166,7 +167,7 @@ def train_xgboost_model(features, labels):
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     print(f"XGBoost Accuracy: {accuracy:.4f}")
-
+    model.save_model("xgb_model.json")  # Save the trained model
     return model
 
 # Main Workflow
