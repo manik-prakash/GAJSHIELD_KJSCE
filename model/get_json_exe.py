@@ -368,7 +368,7 @@ if __name__ == "__main__":
     import sys
     
     if len(sys.argv) < 2:
-        print("Usage: python pef_extractor.py <pe_file_path> [output_file]")
+        print("Usage: python get_json_exe.py <pe_file_path> [output_file]")
         sys.exit(1)
     
     pe_file = sys.argv[1]
