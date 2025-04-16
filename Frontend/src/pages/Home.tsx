@@ -96,9 +96,24 @@ export default function Home() {
           body: formData,
         }
       );
+      const result = await response.json();
+
+      if(result['engine_results'].length() == 0){
+
+        const ml_model_response = await fetch(
+          "#",
+          {
+            method : "POST",
+            body : formData
+          }
+        );
+
+        console.log(ml_model_response);
+      }
+
 
       if (response.ok) {
-        const result = await response.json();
+        
         console.log("File uploaded successfully:", result);
 
         try {
